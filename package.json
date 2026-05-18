@@ -5,7 +5,7 @@
   "scripts": {
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "cy:run:report": "npm run clean && npm-run-all -c -s cy:run report:allure",
+    "cy:run:report": "npm run clean && npm-run-all -c -k cy:run report:allure",
     "cy:run:chrome": "npm run clean && cypress run -b chrome",
     "cy:run:edge": "npm run clean && cypress run -b edge",
     "cy:run:firefox": "npm run clean && cypress run -b firefox",

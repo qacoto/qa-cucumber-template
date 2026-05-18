@@ -52,21 +52,38 @@ pipeline {
       }
     }
 
+    stage('Publish Allure HTML report') {
+      steps {
+        script {
+          if (fileExists('cypress/reports/allure-report/index.html')) {
+            publishHTML([
+              allowMissing: false,
+              alwaysLinkToLastBuild: true,
+              keepAll: true,
+              reportDir: 'cypress/reports/allure-report',
+              reportFiles: 'index.html',
+              reportName: 'Allure HTML Report'
+            ])
+          } else {
+            echo 'No se encontró el reporte HTML de Allure en cypress/reports/allure-report'
+          }
+        }
+      }
+    }
+
     stage('Archive results') {
       steps {
 
         sh 'mkdir -p cypress/reports cypress/screenshots cypress/videos logs'
 
-        // Reportes Allure
+        // Reportes Allure (HTML + resultados)
+        archiveArtifacts artifacts: 'cypress/reports/allure-report/**', fingerprint: true, allowEmptyArchive: true
+        archiveArtifacts artifacts: 'cypress/reports/allure-results/**', fingerprint: true, allowEmptyArchive: true
+
+        // Otros reportes/persistencia
         archiveArtifacts artifacts: 'cypress/reports/**', fingerprint: true, allowEmptyArchive: true
-
-        // Screenshots de fallos
         archiveArtifacts artifacts: 'cypress/screenshots/**', fingerprint: true, allowEmptyArchive: true
-
-        // Videos Cypress
         archiveArtifacts artifacts: 'cypress/videos/**', fingerprint: true, allowEmptyArchive: true
-
-        // Logs terminal report
         archiveArtifacts artifacts: 'logs/**', fingerprint: true, allowEmptyArchive: true
 
       }

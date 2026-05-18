@@ -10,6 +10,7 @@ pipeline {
   }
 
   stages {
+
     stage('Checkout') {
       steps {
         checkout scm
@@ -24,47 +25,107 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        // Ejecuta el script que limpia, corre los tests y genera resultados
-        sh 'docker-compose run --rm app pnpm run cy:run:report'
+        script {
+
+          // Ejecuta Cypress sin cortar el pipeline si fallan tests
+          def exitCode = sh(
+            script: 'docker-compose run --rm app pnpm run cy:run:report',
+            returnStatus: true
+          )
+
+          // Marca el build como UNSTABLE si hubo fallos
+          if (exitCode != 0) {
+            currentBuild.result = 'UNSTABLE'
+            echo "Se detectaron tests fallidos. Exit code: ${exitCode}"
+          }
+
+        }
       }
     }
 
     stage('Generate Allure report') {
       steps {
-        // Genera el reporte Allure (puede fallar si no hay resultados o falta la herramienta)
+
+        // Genera reporte Allure sin romper pipeline
         sh 'docker-compose run --rm app pnpm run report:allure || true'
+
       }
     }
 
     stage('Archive results') {
       steps {
-        // Archiva todos los artefactos de reports para visualización en Jenkins
-        archiveArtifacts artifacts: 'cypress/reports/**', fingerprint: true
+
+        // Reportes Allure
+        archiveArtifacts artifacts: 'cypress/reports/**', fingerprint: true, allowEmptyArchive: true
+
+        // Screenshots de fallos
+        archiveArtifacts artifacts: 'cypress/screenshots/**', fingerprint: true, allowEmptyArchive: true
+
+        // Videos Cypress
+        archiveArtifacts artifacts: 'cypress/videos/**', fingerprint: true, allowEmptyArchive: true
+
+        // Logs terminal report
+        archiveArtifacts artifacts: 'logs/**', fingerprint: true, allowEmptyArchive: true
+
       }
     }
 
     stage('Publish Allure (optional)') {
       steps {
         script {
+
           if (fileExists('cypress/reports/allure-results')) {
+
             try {
-              // Intenta publicar usando el plugin de Allure si está instalado
+
+              // Publica reporte Allure si plugin existe
               allure results: [[path: 'cypress/reports/allure-results']]
+
             } catch (err) {
-              echo 'Allure plugin no disponible en este Jenkins. Los resultados están archivados en "cypress/reports".'
+
+              echo 'Plugin Allure no disponible en Jenkins.'
+              echo 'Los resultados quedaron archivados en artifacts.'
+
             }
+
           } else {
-            echo 'No se encontraron resultados de Allure en cypress/reports/allure-results.'
+
+            echo 'No se encontraron resultados Allure.'
+
           }
+
         }
       }
     }
+
   }
 
   post {
+
     always {
-      // Limpia contenedores de compose
-      sh 'docker compose down --remove-orphans || true'
+
+      // Baja containers aunque falle algo
+      sh 'docker-compose down --remove-orphans || true'
+
     }
+
+    unstable {
+
+      echo 'Build marcado como UNSTABLE debido a tests fallidos.'
+
+    }
+
+    failure {
+
+      echo 'Pipeline falló por un error de infraestructura o ejecución.'
+
+    }
+
+    success {
+
+      echo 'Pipeline ejecutado correctamente. Todos los tests pasaron.'
+
+    }
+
   }
 }

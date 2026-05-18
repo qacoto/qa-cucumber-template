@@ -30,19 +30,10 @@ pipeline {
           def exitCode = sh(
             script: '''
               docker run --rm \
-                -v "$(pwd):/e2e" \
+                -v "$PWD:/e2e" \
                 -w /e2e \
                 qa-cucumber-template-app \
-                sh -c "
-                  npm run clean
-
-                  npm run cy:run
-                  TEST_EXIT_CODE=\\$?
-
-                  npm run report:allure || true
-
-                  exit \\$TEST_EXIT_CODE
-                "
+                sh -c "npm run clean && npm run cy:run; TEST_EXIT_CODE=$?; npm run report:allure || true; exit $TEST_EXIT_CODE"
             ''',
             returnStatus: true
           )

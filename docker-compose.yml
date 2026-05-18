@@ -6,17 +6,5 @@ services:
     environment:
       - CI=true
 
-    command: ["npm", "run", "cy:run"]
-
-  report:
-    build: .
-    container_name: qa-cucumber-template-report
-    working_dir: /e2e
-
     volumes:
-      - ./cypress/reports:/e2e/cypress/reports
-
-    ports:
-      - "8080:8080"
-
-    command: ["npm", "run", "report:serve"]
+      - .:/e2e

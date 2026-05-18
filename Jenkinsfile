@@ -23,84 +23,50 @@ pipeline {
       }
     }
 
-    stage('Run tests and generate Allure report') {
+    stage('Clean reports') {
+      steps {
+        sh 'docker compose run --rm app npm run clean'
+      }
+    }
+
+    stage('Run Cypress tests') {
       steps {
         script {
 
           def exitCode = sh(
-            script: """
-              docker run --rm \
-                -v "\$PWD:/e2e" \
-                -w /e2e \
-                qa-cucumber-template-app \
-                sh -c 'npm run clean && npm run cy:run; TEST_EXIT_CODE=\$?; npm run report:allure || true; exit \$TEST_EXIT_CODE'
-            """,
+            script: 'docker compose run --rm app npm run cy:run',
             returnStatus: true
           )
 
-          if (exitCode != 0) {
-            currentBuild.result = 'UNSTABLE'
-            echo "Se detectaron tests fallidos. Exit code: ${exitCode}"
-          }
+          currentBuild.result = (exitCode != 0) ? 'UNSTABLE' : 'SUCCESS'
 
         }
       }
     }
 
-    stage('Debug generated files') {
+    stage('Generate Allure report') {
       steps {
-        sh '''
-          echo "=== Workspace ==="
-          pwd
-
-          echo "=== Cypress reports ==="
-          ls -R cypress/reports || true
-
-          echo "=== Screenshots ==="
-          ls -R cypress/screenshots || true
-
-          echo "=== Videos ==="
-          ls -R cypress/videos || true
-        '''
+        sh 'docker compose run --rm app npm run report:allure || true'
       }
     }
 
-    stage('Publish Allure HTML report') {
+    stage('Publish Allure report') {
       steps {
-        script {
 
-          if (fileExists('cypress/reports/allure-report/index.html')) {
+        publishHTML([
+          allowMissing: true,
+          alwaysLinkToLastBuild: true,
+          keepAll: true,
+          reportDir: 'cypress/reports/allure-report',
+          reportFiles: 'index.html',
+          reportName: 'Allure Report'
+        ])
 
-            publishHTML([
-              allowMissing: false,
-              alwaysLinkToLastBuild: true,
-              keepAll: true,
-              reportDir: 'cypress/reports/allure-report',
-              reportFiles: 'index.html',
-              reportName: 'Allure HTML Report'
-            ])
-
-            echo 'Reporte Allure publicado correctamente.'
-
-          } else {
-
-            echo 'No se encontró el reporte HTML de Allure.'
-
-          }
-        }
       }
     }
 
-    stage('Archive results') {
+    stage('Archive artifacts') {
       steps {
-
-        sh '''
-          mkdir -p \
-            cypress/reports \
-            cypress/screenshots \
-            cypress/videos \
-            logs
-        '''
 
         archiveArtifacts(
           artifacts: 'cypress/reports/**',
@@ -120,40 +86,15 @@ pipeline {
           allowEmptyArchive: true
         )
 
-        archiveArtifacts(
-          artifacts: 'logs/**',
-          fingerprint: true,
-          allowEmptyArchive: true
-        )
-
       }
     }
+
   }
 
   post {
 
     always {
-
       sh 'docker compose down --remove-orphans || true'
-
-    }
-
-    unstable {
-
-      echo 'Build marcado como UNSTABLE debido a tests fallidos.'
-
-    }
-
-    failure {
-
-      echo 'Pipeline falló por un error de infraestructura o ejecución.'
-
-    }
-
-    success {
-
-      echo 'Pipeline ejecutado correctamente. Todos los tests pasaron.'
-
     }
 
   }

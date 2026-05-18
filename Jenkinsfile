@@ -60,9 +60,9 @@ pipeline {
       steps {
         sh '''
           CONTAINER_ID=$(docker compose ps -q app)
-          docker cp $CONTAINER_ID:/e2e/cypress/reports ./cypress/reports || true
-          docker cp $CONTAINER_ID:/e2e/cypress/screenshots ./cypress/screenshots || true
-          docker cp $CONTAINER_ID:/e2e/cypress/videos ./cypress/videos || true
+          docker cp $CONTAINER_ID:/e2e/cypress/reports ./cypress/ || true
+          docker cp $CONTAINER_ID:/e2e/cypress/screenshots ./cypress/ || true
+          docker cp $CONTAINER_ID:/e2e/cypress/videos ./cypress/ || true
         '''
       }
     }

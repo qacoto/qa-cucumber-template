@@ -27,13 +27,26 @@ pipeline {
       steps {
         script {
 
-          // Ejecuta Cypress, genera resultados y crea el reporte en el MISMO contenedor
           def exitCode = sh(
-            script: "docker compose run --rm app sh -c 'npm run clean && npm run cy:run; npm run report:allure'",
+            script: '''
+              docker run --rm \
+                -v "$(pwd):/e2e" \
+                -w /e2e \
+                qa-cucumber-template-app \
+                sh -c "
+                  npm run clean
+
+                  npm run cy:run
+                  TEST_EXIT_CODE=\\$?
+
+                  npm run report:allure || true
+
+                  exit \\$TEST_EXIT_CODE
+                "
+            ''',
             returnStatus: true
           )
 
-          // Marca el build como UNSTABLE si hubo fallos en tests
           if (exitCode != 0) {
             currentBuild.result = 'UNSTABLE'
             echo "Se detectaron tests fallidos. Exit code: ${exitCode}"
@@ -43,19 +56,20 @@ pipeline {
       }
     }
 
-    stage('Debug files') {
+    stage('Debug generated files') {
       steps {
         sh '''
-          echo "=== Jenkins workspace root ==="
+          echo "=== Workspace ==="
           pwd
-          echo "=== Root files ==="
-          ls -la
-          echo "=== Cypress directory ==="
-          ls -la cypress 2>/dev/null || echo "cypress dir missing"
-          echo "=== Cypress support ==="
-          ls -la cypress/support 2>/dev/null || echo "cypress/support dir missing"
+
           echo "=== Cypress reports ==="
-          ls -R cypress/reports 2>/dev/null || echo "cypress/reports dir missing"
+          ls -R cypress/reports || true
+
+          echo "=== Screenshots ==="
+          ls -R cypress/screenshots || true
+
+          echo "=== Videos ==="
+          ls -R cypress/videos || true
         '''
       }
     }
@@ -63,7 +77,9 @@ pipeline {
     stage('Publish Allure HTML report') {
       steps {
         script {
+
           if (fileExists('cypress/reports/allure-report/index.html')) {
+
             publishHTML([
               allowMissing: false,
               alwaysLinkToLastBuild: true,
@@ -72,8 +88,13 @@ pipeline {
               reportFiles: 'index.html',
               reportName: 'Allure HTML Report'
             ])
+
+            echo 'Reporte Allure publicado correctamente.'
+
           } else {
-            echo 'No se encontró el reporte HTML de Allure en cypress/reports/allure-report'
+
+            echo 'No se encontró el reporte HTML de Allure.'
+
           }
         }
       }
@@ -82,17 +103,37 @@ pipeline {
     stage('Archive results') {
       steps {
 
-        sh 'mkdir -p cypress/reports cypress/screenshots cypress/videos logs'
+        sh '''
+          mkdir -p \
+            cypress/reports \
+            cypress/screenshots \
+            cypress/videos \
+            logs
+        '''
 
-        // Reportes Allure (HTML + resultados)
-        archiveArtifacts artifacts: 'cypress/reports/allure-report/**', fingerprint: true, allowEmptyArchive: true
-        archiveArtifacts artifacts: 'cypress/reports/allure-results/**', fingerprint: true, allowEmptyArchive: true
+        archiveArtifacts(
+          artifacts: 'cypress/reports/**',
+          fingerprint: true,
+          allowEmptyArchive: true
+        )
 
-        // Otros reportes/persistencia
-        archiveArtifacts artifacts: 'cypress/reports/**', fingerprint: true, allowEmptyArchive: true
-        archiveArtifacts artifacts: 'cypress/screenshots/**', fingerprint: true, allowEmptyArchive: true
-        archiveArtifacts artifacts: 'cypress/videos/**', fingerprint: true, allowEmptyArchive: true
-        archiveArtifacts artifacts: 'logs/**', fingerprint: true, allowEmptyArchive: true
+        archiveArtifacts(
+          artifacts: 'cypress/screenshots/**',
+          fingerprint: true,
+          allowEmptyArchive: true
+        )
+
+        archiveArtifacts(
+          artifacts: 'cypress/videos/**',
+          fingerprint: true,
+          allowEmptyArchive: true
+        )
+
+        archiveArtifacts(
+          artifacts: 'logs/**',
+          fingerprint: true,
+          allowEmptyArchive: true
+        )
 
       }
     }
@@ -102,7 +143,6 @@ pipeline {
 
     always {
 
-      // Baja containers aunque falle algo
       sh 'docker compose down --remove-orphans || true'
 
     }

@@ -1,11 +1,7 @@
 services:
   app:
     build: .
-    container_name: qa-cucumber-template
     working_dir: /e2e
-
-    volumes:
-      - ./:/e2e
 
     environment:
       - CI=true

@@ -75,7 +75,8 @@ pipeline {
           jdk: '',
           properties: [],
           reportBuildPolicy: 'ALWAYS',
-          results: [[path: 'cypress/reports/allure-results']]
+          results: [[path: 'cypress/reports/allure-results']],
+          commandline: 'allure'
         ])
 
       }

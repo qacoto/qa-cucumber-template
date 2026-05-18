@@ -3,20 +3,24 @@ services:
     build: .
     container_name: qa-cucumber-template
     working_dir: /e2e
+
     volumes:
-      - ./:/e2e:cached
-      - /e2e/node_modules
       - ./cypress/reports:/e2e/cypress/reports
+
     environment:
       - CI=true
+
     command: ["pnpm", "run", "cy:run"]
+
   report:
     build: .
     container_name: qa-cucumber-template-report
     working_dir: /e2e
+
     volumes:
       - ./cypress/reports:/e2e/cypress/reports
-      - /e2e/node_modules
+
     ports:
       - "8080:8080"
+
     command: ["pnpm", "run", "report:serve"]

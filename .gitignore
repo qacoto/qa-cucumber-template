@@ -1,0 +1,33 @@
+# Dependency directory
+/node_modules
+
+# Cypress Assets
+cypress/videos
+cypress/screenshots
+cypress/downloads
+
+# Reports & Logs
+cypress/reports/
+logs/
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Coverage directory
+coverage
+lib-cov
+
+# Build & OS files
+build/Release
+.lock-wscript
+.DS_Store
+Thumbs.db
+
+# Grunt intermediate storage
+.grunt
+
+# Compiled JS
+js/*.js

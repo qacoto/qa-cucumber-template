@@ -1,0 +1,45 @@
+{
+  "name": "placeholder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:report": "npm run clean && npm-run-all -c -s cy:run report:allure",
+    "cy:run:chrome": "npm run clean && cypress run -b chrome",
+    "cy:run:edge": "npm run clean && cypress run -b edge",
+    "cy:run:firefox": "npm run clean && cypress run -b firefox",
+    "report:allure": "npx allure generate cypress/reports/allure-results --clean --single-file -o cypress/reports/allure-report",
+    "report:serve": "npx http-server cypress/reports/allure-report -p 8080 -o",
+    "allure:serve": "npx allure serve cypress/reports/allure-results",
+    "clean": "rimraf cypress/screenshots cypress/videos cypress/reports"
+  },
+  "keywords": [],
+  "author": "Guido Piaggio",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^24.0.1",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.8",
+    "allure-commandline": "^2.20.0",
+    "cypress": "^15.12.0",
+    "cypress-on-fix": "^1.1.0",
+    "cypress-plugin-api": "^2.11.2",
+    "cypress-plugin-steps": "^1.2.1",
+    "cypress-plugin-xhr-toggle": "^1.2.1",
+    "cypress-terminal-report": "^7.3.3",
+    "dayjs": "^1.11.20",
+    "esbuild": "^0.19.5",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^6.1.3"
+  },
+  "dependencies": {
+    "@shelex/cypress-allure-plugin": "^2.41.2"
+  },
+  "@badeball/cypress-cucumber-preprocessor": {
+    "stepDefinitions": [
+      "cypress/e2e/**/*.js",
+      "cypress/support/step_definitions/**/*.js"
+    ]
+  }
+}

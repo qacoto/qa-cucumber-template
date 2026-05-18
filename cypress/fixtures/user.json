@@ -1,0 +1,11 @@
+{
+  "validDni": "1234567",
+  "validEmail": "andres.qacoto@gmail.com",
+  "validUsername": "BOT3",
+  "validPassword": "12345678",
+
+  "invalidDni": "100000000",
+  "invalidEmail": "email-incorrecto",
+  "invalidUsername": "usuario-incorrecto",
+  "invalidPassword": "123456789"
+}

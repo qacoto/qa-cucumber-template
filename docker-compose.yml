@@ -6,6 +6,9 @@ services:
 
     volumes:
       - ./cypress/reports:/e2e/cypress/reports
+      - ./cypress/screenshots:/e2e/cypress/screenshots
+      - ./cypress/videos:/e2e/cypress/videos
+      - ./logs:/e2e/logs
 
     environment:
       - CI=true

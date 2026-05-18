@@ -55,6 +55,8 @@ pipeline {
     stage('Archive results') {
       steps {
 
+        sh 'mkdir -p cypress/reports cypress/screenshots cypress/videos logs'
+
         // Reportes Allure
         archiveArtifacts artifacts: 'cypress/reports/**', fingerprint: true, allowEmptyArchive: true
 

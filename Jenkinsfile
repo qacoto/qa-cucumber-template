@@ -29,11 +29,7 @@ pipeline {
 
           // Ejecuta Cypress, genera resultados y crea el reporte en el MISMO contenedor
           def exitCode = sh(
-            script: """docker compose run --rm -w /e2e app sh -c '
-              npm run clean &&
-              npm run cy:run;
-              npm run report:allure'
-            """,
+            script: "docker compose run --rm app sh -c 'npm run clean && npm run cy:run; npm run report:allure'",
             returnStatus: true
           )
 

@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  options {
+    ansiColor('xterm')
+  }
+
   environment {
     COMPOSE_PROJECT_NAME = 'qa-cucumber-template'
   }

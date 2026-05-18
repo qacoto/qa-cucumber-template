@@ -2,9 +2,7 @@ services:
   app:
     build: .
     working_dir: /e2e
+    command: ["tail", "-f", "/dev/null"]
 
     environment:
       - CI=true
-
-    volumes:
-      - .:/e2e

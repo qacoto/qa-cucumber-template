@@ -25,7 +25,13 @@ pipeline {
 
     stage('Clean reports') {
       steps {
-        sh 'docker compose run --rm app npm run clean'
+        sh 'rm -rf cypress/screenshots cypress/videos cypress/reports || true'
+      }
+    }
+
+    stage('Start Container') {
+      steps {
+        sh 'docker compose up -d'
       }
     }
 
@@ -34,7 +40,7 @@ pipeline {
         script {
 
           def exitCode = sh(
-            script: 'docker compose run --rm app npm run cy:run',
+            script: 'docker compose exec app npm run cy:run',
             returnStatus: true
           )
 
@@ -46,7 +52,18 @@ pipeline {
 
     stage('Generate Allure report') {
       steps {
-        sh 'docker compose run --rm app npm run report:allure || true'
+        sh 'docker compose exec app npm run report:allure || true'
+      }
+    }
+
+    stage('Copy artifacts') {
+      steps {
+        sh '''
+          CONTAINER_ID=$(docker compose ps -q app)
+          docker cp $CONTAINER_ID:/e2e/cypress/reports ./cypress/reports || true
+          docker cp $CONTAINER_ID:/e2e/cypress/screenshots ./cypress/screenshots || true
+          docker cp $CONTAINER_ID:/e2e/cypress/videos ./cypress/videos || true
+        '''
       }
     }
 

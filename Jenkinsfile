@@ -23,17 +23,21 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
+    stage('Run tests and generate Allure report') {
       steps {
         script {
 
-          // Ejecuta Cypress y genera la salida de tests, sin cortar el pipeline si fallan
+          // Ejecuta Cypress, genera resultados y crea el reporte en el MISMO contenedor
           def exitCode = sh(
-            script: "docker compose run --rm -w /e2e app sh -c 'npm run clean && npm run cy:run'",
+            script: """docker compose run --rm -w /e2e app sh -c '
+              npm run clean &&
+              npm run cy:run;
+              npm run report:allure'
+            """,
             returnStatus: true
           )
 
-          // Marca el build como UNSTABLE si hubo fallos
+          // Marca el build como UNSTABLE si hubo fallos en tests
           if (exitCode != 0) {
             currentBuild.result = 'UNSTABLE'
             echo "Se detectaron tests fallidos. Exit code: ${exitCode}"
@@ -43,12 +47,20 @@ pipeline {
       }
     }
 
-    stage('Generate Allure report') {
+    stage('Debug files') {
       steps {
-
-        // Genera reporte Allure a partir de los resultados de Cypress
-        sh "docker compose run --rm -w /e2e app sh -c 'npm run report:allure' || true"
-
+        sh '''
+          echo "=== Jenkins workspace root ==="
+          pwd
+          echo "=== Root files ==="
+          ls -la
+          echo "=== Cypress directory ==="
+          ls -la cypress 2>/dev/null || echo "cypress dir missing"
+          echo "=== Cypress support ==="
+          ls -la cypress/support 2>/dev/null || echo "cypress/support dir missing"
+          echo "=== Cypress reports ==="
+          ls -R cypress/reports 2>/dev/null || echo "cypress/reports dir missing"
+        '''
       }
     }
 

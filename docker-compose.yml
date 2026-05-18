@@ -11,7 +11,7 @@ services:
     environment:
       - CI=true
 
-    command: ["pnpm", "run", "cy:run"]
+    command: ["npm", "run", "cy:run"]
 
   report:
     build: .
@@ -24,4 +24,4 @@ services:
     ports:
       - "8080:8080"
 
-    command: ["pnpm", "run", "report:serve"]
+    command: ["npm", "run", "report:serve"]

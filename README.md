@@ -21,12 +21,39 @@
 
 ## Usar con Docker
 
-Este proyecto usa `pnpm` como gestor de dependencias, por lo que el contenedor instala y ejecuta los scripts con `pnpm`.
+Este proyecto usa `npm` como gestor de dependencias, por lo que el contenedor instala y ejecuta los scripts con `npm`.
+
+### Uso local
+
+```bash
+npm install
+npm run cy:run:report
+```
+
+### Con Docker
 
 1. Construir la imagen:
 
 ```bash
 docker compose build
+```
+
+2. Ejecutar los tests y generar el reporte:
+
+```bash
+docker compose run --rm app npm run cy:run:report
+```
+
+3. Servir el reporte HTML en http://localhost:8080:
+
+```bash
+docker compose up --detach report
+```
+
+4. Detener el servicio de reporte cuando termines:
+
+```bash
+docker compose down
 ```
 
 2. Ejecutar los tests de Cypress:

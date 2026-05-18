@@ -19,7 +19,7 @@ pipeline {
 
     stage('Build image') {
       steps {
-        sh 'docker-compose build'
+        sh 'docker compose build'
       }
     }
 
@@ -27,9 +27,9 @@ pipeline {
       steps {
         script {
 
-          // Ejecuta Cypress sin cortar el pipeline si fallan tests
+          // Ejecuta Cypress y genera la salida de tests, sin cortar el pipeline si fallan
           def exitCode = sh(
-            script: 'docker-compose run --rm app pnpm run cy:run:report',
+            script: 'docker compose run --rm app sh -c "npm run clean && npm run cy:run"',
             returnStatus: true
           )
 
@@ -46,8 +46,8 @@ pipeline {
     stage('Generate Allure report') {
       steps {
 
-        // Genera reporte Allure sin romper pipeline
-        sh 'docker-compose run --rm app pnpm run report:allure || true'
+        // Genera reporte Allure a partir de los resultados de Cypress
+        sh 'docker compose run --rm app npm run report:allure || true'
 
       }
     }
@@ -88,35 +88,6 @@ pipeline {
 
       }
     }
-
-    stage('Publish Allure (optional)') {
-      steps {
-        script {
-
-          if (fileExists('cypress/reports/allure-results')) {
-
-            try {
-
-              // Publica reporte Allure si plugin existe
-              allure results: [[path: 'cypress/reports/allure-results']]
-
-            } catch (err) {
-
-              echo 'Plugin Allure no disponible en Jenkins.'
-              echo 'Los resultados quedaron archivados en artifacts.'
-
-            }
-
-          } else {
-
-            echo 'No se encontraron resultados Allure.'
-
-          }
-
-        }
-      }
-    }
-
   }
 
   post {
@@ -124,7 +95,7 @@ pipeline {
     always {
 
       // Baja containers aunque falle algo
-      sh 'docker-compose down --remove-orphans || true'
+      sh 'docker compose down --remove-orphans || true'
 
     }
 

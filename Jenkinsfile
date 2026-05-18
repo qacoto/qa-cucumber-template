@@ -14,21 +14,21 @@ pipeline {
 
     stage('Build image') {
       steps {
-        sh 'docker compose build'
+        sh 'docker-compose build'
       }
     }
 
     stage('Run tests') {
       steps {
         // Ejecuta el script que limpia, corre los tests y genera resultados
-        sh 'docker compose run --rm app pnpm run cy:run:report'
+        sh 'docker-compose run --rm app pnpm run cy:run:report'
       }
     }
 
     stage('Generate Allure report') {
       steps {
         // Genera el reporte Allure (puede fallar si no hay resultados o falta la herramienta)
-        sh 'docker compose run --rm app pnpm run report:allure || true'
+        sh 'docker-compose run --rm app pnpm run report:allure || true'
       }
     }
 

@@ -70,13 +70,12 @@ pipeline {
     stage('Publish Allure report') {
       steps {
 
-        publishHTML([
-          allowMissing: true,
-          alwaysLinkToLastBuild: true,
-          keepAll: true,
-          reportDir: 'cypress/reports/allure-report',
-          reportFiles: 'index.html',
-          reportName: 'Allure Report'
+        allure([
+          includeProperties: false,
+          jdk: '',
+          properties: [],
+          reportBuildPolicy: 'ALWAYS',
+          results: [[path: 'cypress/reports/allure-results']]
         ])
 
       }

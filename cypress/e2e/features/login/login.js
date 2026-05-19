@@ -15,7 +15,7 @@ const {
 } = userData;
 
 Given("Estoy en la página de login de COTO Digital", () => {
-  cy.visit(`https://testdigital3.redcoto.com.ar/sitios/cdigi/ingresar`);
+  cy.visit(`/ingresar`);
 });
 
 When("Ingreso un usuario válido", () => {

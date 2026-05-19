@@ -1,5 +1,5 @@
 import "./commands/commands";
-import "@shelex/cypress-allure-plugin";
+import "allure-cypress";
 import "cypress-plugin-api";
 import "cypress-plugin-steps";
 import "cypress-plugin-xhr-toggle";

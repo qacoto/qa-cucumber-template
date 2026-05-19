@@ -6,15 +6,21 @@ const {
 const createBundler = require("@bahmutov/cypress-esbuild-preprocessor");
 const createEsbuildPlugin =
   require("@badeball/cypress-cucumber-preprocessor/esbuild").createEsbuildPlugin;
-const allureWriter = require("@shelex/cypress-allure-plugin/writer");
+const { allureCypress } = require("allure-cypress/reporter");
 
 module.exports = defineConfig({
   experimentalRunEvents: true,
 
   e2e: {
+    baseUrl: "https://testdigital3.redcoto.com.ar/sitios/cdigi",
+
     async setupNodeEvents(on, config) {
       await addCucumberPreprocessorPlugin(on, config);
-      allureWriter(on, config);
+      allureCypress(on, config, {
+        resultsDir: "cypress/reports/allure-results",
+        links: [],
+      });
+
       installLogsPrinter(on, {
         printLogsToConsole: "always",
         printLogsToFile: "always",
@@ -33,6 +39,7 @@ module.exports = defineConfig({
 
       return config;
     },
+
     specPattern: "cypress/e2e/**/*.feature",
     screenshotsFolder: "cypress/screenshots",
     videosFolder: "cypress/videos",
@@ -44,14 +51,5 @@ module.exports = defineConfig({
     screenshotOnRunFailure: true,
     video: true,
     videoCompression: 32,
-    videoUploadOnPasses: true,
-  },
-
-  env: {
-    allure: true,
-    video: true,
-    allureAddVideoOnPass: true,
-    allureAddVideoOnFail: true,
-    allureResultsPath: "cypress/reports/allure-results",
   },
 });

@@ -1,47 +1,35 @@
-Feature: Login en COTO Digital
+Feature: Login en SauceDemo
 
   Background:
-    Given Estoy en la página de login de COTO Digital
+    Given Estoy en la página de login de SauceDemo
 
-  @APP-1234 @Regression
-  Scenario: Acceso exitoso con usuario y contraseña válidos
-    When Ingreso un usuario válido
-    And Ingreso una contraseña válida
-    And Hago clic en el botón de ingresar
-    Then Debería ver el nombre del usuario en el header
+  @Regression @Smoke
+  Scenario: Login exitoso con standard_user
+    When Ingreso el usuario "standard_user"
+    And Ingreso la contraseña "secret_sauce"
+    And Hago clic en el botón de login
+    Then Debería ver la página de inventario
 
-  Scenario: Acceso exitoso con email y contraseña válidos
-    When Ingreso un email válido
-    And Ingreso una contraseña válida
-    And Hago clic en el botón de ingresar
-    Then Debería ver el nombre del usuario en el header
+  @Regression
+  Scenario: Login fallido con locked_out_user
+    When Ingreso el usuario "locked_out_user"
+    And Ingreso la contraseña "secret_sauce"
+    And Hago clic en el botón de login
+    Then Se muestra el mensaje "Epic sadface: Sorry, this user has been locked out."
 
-  Scenario: Acceso exitoso con DNI y contraseña válidos
-    When Ingreso un DNI válido
-    And Ingreso una contraseña válida
-    And Hago clic en el botón de ingresar
-    Then Debería ver el nombre del usuario en el header
-
-  Scenario: Usuario incorrecto
-    When Ingreso un usuario inválido
-    And Ingreso una contraseña válida
-    And Hago clic en el botón de ingresar
+  @Regression
+  Scenario: Login fallido con credenciales inválidas
+    When Ingreso el usuario "usuario_inexistente"
+    And Ingreso la contraseña "clave_incorrecta"
+    And Hago clic en el botón de login
     Then Se muestra un mensaje de error
 
-  Scenario: Contraseña incorrecta
-    When Ingreso un usuario válido
-    And Ingreso una contraseña inválida
-    And Hago clic en el botón de ingresar
-    Then Se muestra un mensaje de error
+  Scenario: Login con usuario vacío
+    When Ingreso la contraseña "secret_sauce"
+    And Hago clic en el botón de login
+    Then Se muestra el mensaje "Epic sadface: Username is required"
 
-  Scenario: Email inexistente
-    When Ingreso un email inválido
-    And Ingreso una contraseña válida
-    And Hago clic en el botón de ingresar
-    Then Se muestra un mensaje de error
-
-  Scenario: DNI incorrecto
-    When Ingreso un DNI inválido
-    And Ingreso una contraseña válida
-    And Hago clic en el botón de ingresar
-    Then Se muestra un mensaje de error
+  Scenario: Login con contraseña vacía
+    When Ingreso el usuario "standard_user"
+    And Hago clic en el botón de login
+    Then Se muestra el mensaje "Epic sadface: Password is required"

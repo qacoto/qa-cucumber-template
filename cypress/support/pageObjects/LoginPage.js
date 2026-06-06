@@ -1,9 +1,9 @@
 export class LoginPage {
   elements = {
-    usernameInput: () => cy.get("input[id=login]"),
-    passwordInput: () => cy.get("input[id=password]"),
-    loginBtn: () => cy.get("form.ng-dirty > .pt-2 > .btn"),
-    loginError: () => cy.get(".ng-trigger"),
+    usernameInput: () => cy.get('input[data-test="username"]'),
+    passwordInput: () => cy.get('input[data-test="password"]'),
+    loginBtn: () => cy.get('input[data-test="login-button"]'),
+    loginError: () => cy.get('h3[data-test="error"]'),
   };
 
   getUsernameInput() {
@@ -32,6 +32,11 @@ export class LoginPage {
 
   clickLoginBtn() {
     this.getLoginBtn().click();
+  }
+
+  clearFields() {
+    this.getUsernameInput().clear();
+    this.getPasswordInput().clear();
   }
 }
 

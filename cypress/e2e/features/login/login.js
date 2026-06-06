@@ -1,70 +1,31 @@
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 import { loginPage } from "../../../support/pageObjects/LoginPage";
-import { header } from "../../../support/pageObjects/Header";
-import userData from "../../../fixtures/user.json";
+import { inventoryPage } from "../../../support/pageObjects/InventoryPage";
 
-const {
-  validDni,
-  validEmail,
-  validUsername,
-  validPassword,
-  invalidDni,
-  invalidEmail,
-  invalidUsername,
-  invalidPassword,
-} = userData;
-
-Given("Estoy en la página de login de COTO Digital", () => {
-  cy.visit(`/ingresar`);
+Given("Estoy en la página de login de SauceDemo", () => {
+  cy.visit("/");
 });
 
-When("Ingreso un usuario válido", () => {
-  loginPage.typeUser(validUsername);
+When("Ingreso el usuario {string}", (username) => {
+  loginPage.typeUser(username);
 });
 
-When("Ingreso un email válido", () => {
-  loginPage.typeUser(validEmail);
+When("Ingreso la contraseña {string}", (password) => {
+  loginPage.typePassword(password);
 });
 
-When("Ingreso un DNI válido", () => {
-  loginPage.typeUser(validDni);
-});
-
-When("Ingreso una contraseña válida", () => {
-  loginPage.typePassword(validPassword);
-});
-
-Then("Debería ver el nombre del usuario en el header", () => {
-  header.clickMenuBtn();
-  header.getDropdownMenuTitle().should("contain.text", `Hola ${validUsername}`);
-});
-
-When("Ingreso un usuario inválido", () => {
-  loginPage.typeUser(invalidUsername);
-});
-
-When("Ingreso un email inválido", () => {
-  loginPage.typeUser(invalidEmail);
-});
-
-When("Ingreso un DNI inválido", () => {
-  loginPage.typeUser(invalidDni);
-});
-
-When("Ingreso una contraseña inválida", () => {
-  loginPage.typePassword(invalidPassword);
-});
-
-When("Hago clic en el botón de ingresar", () => {
+When("Hago clic en el botón de login", () => {
   loginPage.clickLoginBtn();
 });
 
+Then("Debería ver la página de inventario", () => {
+  inventoryPage.verifyPageLoaded();
+});
+
 Then("Se muestra un mensaje de error", () => {
-  loginPage
-    .getLoginError()
-    .should("be.visible")
-    .and(
-      "contain.text",
-      "Alguno de los datos ingresados no es correcto. Verifica e intentalo nuevamente.",
-    );
+  loginPage.getLoginError().should("be.visible");
+});
+
+Then("Se muestra el mensaje {string}", (expectedMessage) => {
+  loginPage.getLoginError().should("be.visible").and("have.text", expectedMessage);
 });

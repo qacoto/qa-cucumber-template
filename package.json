@@ -5,17 +5,18 @@
   "scripts": {
     "cy:open": "cypress open",
     "cy:run": "cypress run",
+    "cy:run:smoke": "cypress run -e tags=\"@Smoke\"",
+    "cy:run:regression": "cypress run -e tags=\"@Regression\"",
     "cy:run:report": "npm run clean && npm-run-all --continue-on-error --sequential cy:run report:allure",
-    "cy:run:chrome": "npm run clean && cypress run -b chrome",
-    "cy:run:edge": "npm run clean && cypress run -b edge",
-    "cy:run:firefox": "npm run clean && cypress run -b firefox",
+    "cy:run:report:smoke": "npm run clean && npm-run-all --continue-on-error --sequential cy:run:smoke report:allure",
+    "cy:run:report:regression": "npm run clean && npm-run-all --continue-on-error --sequential cy:run:regression report:allure",
     "report:allure": "allure generate cypress/reports/allure-results --clean --single-file -o cypress/reports/allure-report",
     "report:serve": "http-server cypress/reports/allure-report -p 8080 -o",
     "allure:serve": "allure serve cypress/reports/allure-results",
     "clean": "rimraf cypress/screenshots cypress/videos cypress/reports"
   },
   "keywords": [],
-  "author": "Guido Piaggio",
+  "author": "Andres Negrette",
   "license": "ISC",
   "description": "",
   "devDependencies": {

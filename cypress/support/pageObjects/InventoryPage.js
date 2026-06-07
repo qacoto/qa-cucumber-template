@@ -1,26 +1,18 @@
 export class InventoryPage {
-  elements = {
-    pageTitle: () => cy.get('span[data-test="title"]'),
-    burgerMenuBtn: () => cy.get('button[id="react-burger-menu-btn"]'),
-    shoppingCartLink: () => cy.get('a[class="shopping_cart_link"]'),
-  };
-
-  getPageTitle() {
-    return this.elements.pageTitle();
+  get pageTitle() {
+    return cy.get('span[data-test="title"]');
   }
-
-  getBurgerMenuBtn() {
-    return this.elements.burgerMenuBtn();
+  get burgerMenuBtn() {
+    return cy.get('button[id="react-burger-menu-btn"]');
   }
-
-  getShoppingCartLink() {
-    return this.elements.shoppingCartLink();
+  get shoppingCartLink() {
+    return cy.get('.shopping_cart_link');
   }
 
   verifyPageLoaded() {
-    this.getPageTitle().should("contain.text", "Products");
-    this.getBurgerMenuBtn().should("be.visible");
-    this.getShoppingCartLink().should("be.visible");
+    this.pageTitle.should('contain.text', 'Products');
+    this.burgerMenuBtn.should('be.visible');
+    this.shoppingCartLink.should('be.visible');
   }
 }
 
